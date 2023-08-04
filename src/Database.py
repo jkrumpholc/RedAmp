@@ -41,6 +41,8 @@ class Database:
         self.conn = None
         self.cur = None
         self.sql = ""
+        self.pointer_ip = 1
+        self.pointer_url = 1
 
     def connect(self) -> bool:
         """
@@ -61,8 +63,8 @@ class Database:
             return True
 
     def add_entry(self, table, data, source):
-        request = f"INSERT INTO {table}(source, data) VALUES ('{source}','{data}');"
-        self.sql += request
+        query = f"INSERT INTO {table}(source, data) VALUES ('{source}','{data}');"
+        self.sql += query
 
     def execute(self):
         try:
@@ -78,6 +80,15 @@ class Database:
             Logger.err_handler("Wrong SQL query")
         else:
             self.db_commit()
+
+    def set_sources(self, ip_rows, url_rows, url):
+        if ip_rows > 0:
+            self.sql += f"INSERT INTO sources(url, ioc_type,from_index, to_index) VALUES ('{url}', 'ip_ioc', {self.pointer_ip},{self.pointer_ip+ip_rows-1})"
+            self.pointer_ip += ip_rows
+        if url_rows > 0:
+            self.sql += f"INSERT INTO sources(url, ioc_type,from_index, to_index) VALUES ('{url}', 'url_ioc', {self.pointer_url},{self.pointer_url+url_rows-1})"
+            self.pointer_url += url_rows
+        self.execute()
 
     def db_commit(self):
         try:
