@@ -12,7 +12,7 @@ class Credentials:
             Logger.err_handler("No credentials file found", "Please import proper '.env' file with keys: "
                                "'DATABASE_HOST', 'DATABASE_NAME', 'DATABASE_USERNAME', 'DATABASE_PASSWORD'")
 
-    def value(self) -> dict:
+    def value(self):
         """
         :return: Credentials
         :rtype: dict
@@ -20,12 +20,12 @@ class Credentials:
         return self.credentials
 
     @staticmethod
-    def get(name: str) -> str:
+    def get(name):
         """
-        Get credentials from '.env' file
-        :param name: Name of environv
+        Get value of environmental variable
+        :param name: Name of variable
         :type name: str
-        :return: Value of environv
+        :return: Value of variable
         :rtype: str
         """
         return os.environ.get(name)
@@ -63,10 +63,24 @@ class Database:
             return True
 
     def add_entry(self, table, data, source):
+        """
+        Add INSERT query into 'cache' for batch inserting
+        :param table: Target table
+        :type table: str
+        :param data: Data
+        :type data: str
+        :param source: Source URL of data
+        :type source: str
+        :return: None
+        """
         query = f"INSERT INTO {table}(source, data) VALUES ('{source}','{data}');"
         self.sql += query
 
     def pointer_set(self):
+        """
+        Creates pointer for 'sources' table in database
+        :return: None
+        """
         self.sql = f"SELECT last_value FROM ip_ioc_id_seq;"
         self.pointer_ip = self.execute(True)[0]
         if self.pointer_ip != 1:
@@ -78,6 +92,12 @@ class Database:
         self.sql = ""
 
     def execute(self, fetch=False):
+        """
+        Execute queries in self.sql
+        :param fetch: (Optional) If true, return result of query
+        :type fetch: bool
+        :return: Result of query if fetch is True, None otherwise
+        """
         try:
             self.cur.execute(self.sql)
             if fetch:
@@ -95,6 +115,16 @@ class Database:
             self.db_commit()
 
     def set_sources(self, ip_rows, url_rows, url):
+        """
+        Write sources to 'sources' table
+        :param ip_rows: Number of ip rows added
+        :type ip_rows: int
+        :param url_rows: Number of url rows added
+        :type url_rows: int
+        :param url: Source url
+        :type url: str
+        :return: True if query is not empty, False otherwise
+        """
         if ip_rows > 0:
             self.sql += f"INSERT INTO sources(url, ioc_type,from_index, to_index) VALUES ('{url}', 'ip_ioc', {self.pointer_ip},{self.pointer_ip+ip_rows-1})"
             self.pointer_ip += ip_rows
@@ -108,6 +138,10 @@ class Database:
             return True
 
     def db_commit(self):
+        """
+        Commit changes to database
+        :return: True if success
+        """
         try:
             self.conn.commit()
         except psycopg2.InternalError:
@@ -117,6 +151,11 @@ class Database:
         return True
 
     def db_exit(self):
+        """
+        Terminates connection
+        :return: None
+        :rtype: None
+        """
         try:
             self.db_commit()
         except psycopg2.Error:

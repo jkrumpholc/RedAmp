@@ -14,8 +14,7 @@ def parse_data(data, url, database) -> tuple[int, int]:
     :return: Number of entries for each type
     :rtype: tuple
     """
-    ip_count = 0
-    url_count = 0  # count of processed lines
+    ip_count = url_count = 0  # count of lines
     for line in data.split("\n"):
         if re.search(r"(?:^|\S)https?://\S+/", line) is not None:
             database.add_entry("url_ioc", line, url)  # insert line into "url_ioc" table
@@ -47,7 +46,7 @@ def parse_links(file_name, database) -> tuple[int, int]:
                 Logger.err_handler(f"Page error {req.status_code}",
                                    f"Page {url} returned code {req.status_code} ({req.reason})")
             resp = req.content.decode()  # decode response to get file content
-            url = re.findall(r"https?://([^/]+)", url)[0]
+            url = re.findall(r"https?://([^/]+)", url)[0]   # get server url
             ip_temp, url_temp = parse_data(resp, url, database)
             database.execute()
             database.set_sources(ip_temp, url_temp, url)
