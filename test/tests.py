@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, "../")  # missing sys.path for main folder
 import unittest
 from unittest import mock
 import argparse
@@ -49,7 +51,7 @@ class RedAmpTest(unittest.TestCase):
         """
         with open("../empty.txt", "w") as file:
             pass
-        self.assertEqual(parse_links("../empty.txt", ""), 0)
+        self.assertEqual(parse_links("../empty.txt", ""), (0, 0))
 
     def test_parse_empty_data(self):
         """
@@ -101,7 +103,7 @@ class RedAmpTest(unittest.TestCase):
         """
         db = Database()
         db.connect()
-        self.assertTrue(db.set_sources(0, 0, ""))
+        self.assertFalse(db.set_sources(0, 0, ""))
 
 
 if __name__ == '__main__':

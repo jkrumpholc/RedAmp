@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, "../")  # missing sys.path for main folder
 import argparse
 import src.Database as Database
 import src.Data_processing as Data_processing
