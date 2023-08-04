@@ -40,6 +40,7 @@ class Database:
         self.db_pass = credentials.get("DATABASE_PASSWORD")
         self.conn = None
         self.cur = None
+        self.sql = ""
 
     def connect(self) -> bool:
         """
@@ -55,24 +56,42 @@ class Database:
                 password=self.db_pass)
             self.cur = self.conn.cursor()
         except psycopg2.OperationalError:
+            self.db_exit()
             return False
         else:
             return True
 
     def add_entry(self, table, data, source):
-        request = f"INSERT INTO {table}(source, data) VALUES ('{source}','{data}')"
+        request = f"INSERT INTO {table}(source, data) VALUES ('{source}','{data}');"
+        self.sql += request
+
+    def execute(self):
         try:
-            self.cur.execute(request)
+            self.cur.execute(self.sql)
         except psycopg2.OperationalError:
+            self.db_exit()
             Logger.err_handler("Cannot connect", "Cannot connect to database")
         except psycopg2.DataError:
-            Logger.err_handler("Data error", f"Cannot work with data:\n    {data}")
+            self.db_exit()
+            Logger.err_handler("Data error")
         except psycopg2.ProgrammingError:
-            Logger.err_handler("Wrong SQL querry", f"Wrong SQL querry:\n    {request}")
+            self.db_exit()
+            Logger.err_handler("Wrong SQL query")
+        else:
+            self.db_commit()
 
     def db_commit(self):
         try:
             self.conn.commit()
         except psycopg2.InternalError:
+            self.db_exit()
             Logger.err_handler("Integrity error")
+        self.sql = ""  # clearing "cache" for sql queries
         return True
+
+    def db_exit(self):
+        try:
+            self.db_commit()
+        except psycopg2.Error:
+            pass
+        self.conn.close()
