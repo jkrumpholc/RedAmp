@@ -56,7 +56,6 @@ class Database:
                 password=self.db_pass)
             self.cur = self.conn.cursor()
         except psycopg2.OperationalError:
-            self.db_exit()
             return False
         else:
             return True

@@ -25,25 +25,28 @@ def parse_data(data, url, database) -> int:
     return count
 
 
-def parse_links(file_name, database) -> bool:
+def parse_links(file_name, database) -> int:
     """
     :param file_name: Name of file with links
     :type file_name: str
     :param database: Database class
-    :return: True if success
-    :rtype: bool
+    :return: Number of processed lines
+    :rtype: int
     """
-    if not os.path.exists(file_name):   # check if file exists
+    if not os.path.exists(file_name):  # check if file exists
         Logger.err_handler("Target doesn't exists", f"Target file: {file_name} does not exists.")
-    if not os.path.isfile(file_name):   # check if target is a file
+    if not os.path.isfile(file_name):  # check if target is a file
         Logger.err_handler("Target is not a file")
+    rows = 0
     with open(file_name, "r+") as file:
         for url in file:
+            url = url.strip()
             req = requests.get(url)  # request to get file
-            resp = req.content.decode()     # decode response to get file content
+            if req.status_code != 200:
+                Logger.err_handler(f"Page error {req.status_code}",
+                                   f"Page {url} returned code {req.status_code} ({req.reason})")
+            resp = req.content.decode()  # decode response to get file content
             url = re.findall(r"https?://([^/]+)", url)[0]
-            parse_data(resp, url, database)
-            database.db_commit()
-    return True
-
-
+            rows += parse_data(resp, url, database)
+            database.execute()
+    return rows
