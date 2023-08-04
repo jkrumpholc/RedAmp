@@ -101,8 +101,11 @@ class Database:
         if url_rows > 0:
             self.sql += f"INSERT INTO sources(url, ioc_type,from_index, to_index) VALUES ('{url}', 'url_ioc', {self.pointer_url},{self.pointer_url+url_rows-1})"
             self.pointer_url += url_rows
-        self.execute()
-        return True
+        if self.sql == "":
+            return False
+        else:
+            self.execute()
+            return True
 
     def db_commit(self):
         try:
