@@ -14,9 +14,12 @@ def parse_links(file_name) -> bool:
     if not os.path.isfile(file_name):   # check if target is a file
         Logger.err_handler("Target is not a file")
     with open(file_name, "r+") as file:
-        url = file.readline().strip()
-        req = requests.get(url)
-        resp = req.content.decode()     # decode response to get file content
+        for url in file:
+            req = requests.get(url)
+            resp = req.content.decode()     # decode response to get file content
+            url = re.findall(r"https?://([^/]+)", url)[0]
+            parse_data(resp, url, database)
+            database.db_commit()
     return True
 
 

@@ -1,6 +1,7 @@
 import unittest
 from unittest import mock
 import argparse
+import psycopg2
 from src.Database import Database, Credentials
 import src.main as main
 
@@ -35,9 +36,16 @@ class RedAmpTest(unittest.TestCase):
         """
         test for database connection
         """
-        self.assertEqual(Database().connect(), True)
+        self.assertTrue(Database().connect())
 
-
+    @mock.patch.object(psycopg2, "connect")
+    def test_db_connect_fail(self, mock_connect):
+        """
+        test for unsuccessful connection
+        """
+        e = psycopg2.OperationalError()
+        mock_connect.side_effect = e
+        self.assertFalse(Database().connect())
 
 
 if __name__ == '__main__':
