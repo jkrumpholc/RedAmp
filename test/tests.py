@@ -8,6 +8,9 @@ import src.main as main
 class RedAmpTest(unittest.TestCase):
 
     def test_empty_args(self):
+        """
+        test with no args
+        """
         with self.assertRaises(SystemExit) as cm:
             main.arg_parsing()
         self.assertEqual(cm.exception.code, 1)
@@ -15,6 +18,9 @@ class RedAmpTest(unittest.TestCase):
     @mock.patch('argparse.ArgumentParser.parse_args',
                 return_value=argparse.Namespace(help=True))
     def test_help_args(self, mock_args):
+        """
+        test for --help
+        """
         with self.assertRaises(SystemExit) as cm:
             main.arg_parsing()
         self.assertEqual(cm.exception.code, 0)
