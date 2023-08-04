@@ -4,6 +4,7 @@ import argparse
 import psycopg2
 from src.Database import Database, Credentials
 import src.main as main
+from src.Data_processing import parse_links, parse_data
 
 
 class RedAmpTest(unittest.TestCase):
@@ -25,6 +26,37 @@ class RedAmpTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             main.arg_parsing()
         self.assertEqual(cm.exception.code, 0)
+
+    def test_file_nonexistent(self):
+        """
+        test for nonexistent file
+        """
+        with self.assertRaises(SystemExit) as cm:
+            parse_links("", "")
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_file_non_file(self):
+        """
+        test for dir instead of file
+        """
+        with self.assertRaises(SystemExit) as cm:
+            parse_links("../src/", "")
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_parse_empty_data(self):
+        """
+        test for parsing empty data
+        """
+        self.assertEqual(parse_data("", "", ""), 0)
+
+    def test_parse_data(self):
+        """
+        test for correct parsing data
+        """
+        db = Database()
+        db.connect()
+        self.assertEqual(parse_data("https://www.templatent.com/apc/2fa69440-4d27-4a93-b54d-4af36b27a54b/186dc87a-7c05-446c-8919-bd97a59dd550/13f11222-6f81-49c3-92ab-17b40ef8c79a/login?id=c2lHREdJSVNxaHp4UmhZczY1RGoyKzRUUmZnOElTZG10Tk9VUm1wZ3E3aHBqUEJMZ3JRcktYVUl5d0Z1cEc4UityeFdTVWtTNVVCWERGSjhCYkZBY1BqdkQweklzc2pNaExXbmdvZDRrMnVZeHBQNWpDbk9aSU9yS2hSbzdoVlgrejg5d0dXSWpsaVVTeC9vcHYwcFJGSVBOK20yNlV6enkwejlVR2IrblFKRGlKSGs2ZFdaR214NVJoZnBLWTVWOVd4WE5hdDVmNVdGbHVBR2VRQjBHOC9RSnMrZjRtUldjNndudmYzMDZYeW40allhRDhwRE81MG01L01UdjBHVUI0cGlaajNvaThzY2RHOWRKRGRoK3hVQjNiekM5YXZiYllTMjB5YkxGYnVReFVIanNEbGVZRklKN3lFK3BpS0kxczRxOWRzSEdVYjZjaW5tVnlRQVdvZDZDQzZlV2NQbjZVVmdsWDRNa2FZb2xSenZ0akI4eGtPeE1aNzVGR2hB",
+                                    'openphish.com', db), 1)
 
     def test_dotenv(self):
         """
