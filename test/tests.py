@@ -43,11 +43,19 @@ class RedAmpTest(unittest.TestCase):
             parse_links("../src/", "")
         self.assertEqual(cm.exception.code, 1)
 
+    def test_file_empty_file(self):
+        """
+        test for empty file
+        """
+        with open("../empty.txt", "w") as file:
+            pass
+        self.assertEqual(parse_links("../empty.txt", ""), 0)
+
     def test_parse_empty_data(self):
         """
         test for parsing empty data
         """
-        self.assertEqual(parse_data("", "", ""), 0)
+        self.assertEqual(parse_data("", "", ""), (0, 0))
 
     def test_parse_data(self):
         """
@@ -56,7 +64,7 @@ class RedAmpTest(unittest.TestCase):
         db = Database()
         db.connect()
         self.assertEqual(parse_data("https://www.templatent.com/apc/2fa69440-4d27-4a93-b54d-4af36b27a54b/186dc87a-7c05-446c-8919-bd97a59dd550/13f11222-6f81-49c3-92ab-17b40ef8c79a/login?id=c2lHREdJSVNxaHp4UmhZczY1RGoyKzRUUmZnOElTZG10Tk9VUm1wZ3E3aHBqUEJMZ3JRcktYVUl5d0Z1cEc4UityeFdTVWtTNVVCWERGSjhCYkZBY1BqdkQweklzc2pNaExXbmdvZDRrMnVZeHBQNWpDbk9aSU9yS2hSbzdoVlgrejg5d0dXSWpsaVVTeC9vcHYwcFJGSVBOK20yNlV6enkwejlVR2IrblFKRGlKSGs2ZFdaR214NVJoZnBLWTVWOVd4WE5hdDVmNVdGbHVBR2VRQjBHOC9RSnMrZjRtUldjNndudmYzMDZYeW40allhRDhwRE81MG01L01UdjBHVUI0cGlaajNvaThzY2RHOWRKRGRoK3hVQjNiekM5YXZiYllTMjB5YkxGYnVReFVIanNEbGVZRklKN3lFK3BpS0kxczRxOWRzSEdVYjZjaW5tVnlRQVdvZDZDQzZlV2NQbjZVVmdsWDRNa2FZb2xSenZ0akI4eGtPeE1aNzVGR2hB",
-                                    'openphish.com', db), 1)
+                                    'openphish.com', db), (0, 1))
 
     def test_dotenv(self):
         """
@@ -78,6 +86,14 @@ class RedAmpTest(unittest.TestCase):
         e = psycopg2.OperationalError()
         mock_connect.side_effect = e
         self.assertFalse(Database().connect())
+
+    def test_db_commit(self):
+        """
+        test for database commit
+        """
+        db = Database()
+        db.connect()
+        self.assertTrue(db.db_commit())
 
 
 if __name__ == '__main__':
