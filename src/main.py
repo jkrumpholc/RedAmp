@@ -1,5 +1,6 @@
 import argparse
 import src.Database as Database
+import src.Data_processing as Data_processing
 import src.Logger as Logger
 
 
@@ -24,3 +25,5 @@ def arg_parsing() -> argparse.Namespace:
 if __name__ == '__main__':
     args = arg_parsing()
     Database.Credentials()
+    db = Database.Database()  # initialize database
+    db.connect()  # initialize connection

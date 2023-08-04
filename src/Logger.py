@@ -15,7 +15,7 @@ def err_handler(error_text: str, help_text: str = None) -> None:
     if help_text is not None:
         sys.stdout.write(help_text+"\n")
         sys.stdout.flush()
-    input("Press Return to exit: ")
+    # input("Press Return to exit: ")
     sys.exit(1)
 
 
