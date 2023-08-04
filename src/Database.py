@@ -1,4 +1,5 @@
 import os
+import psycopg2
 import dotenv
 import src.Logger as Logger
 
@@ -28,3 +29,32 @@ class Credentials:
         :rtype: str
         """
         return os.environ.get(name)
+
+
+class Database:
+    def __init__(self):
+        credentials = Credentials()
+        self.db_host = credentials.get("DATABASE_HOST")
+        self.db_name = credentials.get("DATABASE_NAME")
+        self.db_user = credentials.get("DATABASE_USERNAME")
+        self.db_pass = credentials.get("DATABASE_PASSWORD")
+        self.conn = None
+        self.cur = None
+
+    def connect(self) -> bool:
+        """
+        Create connection to database
+        :return: True if success, False otherwise
+        :rtype: bool
+        """
+        try:
+            self.conn = psycopg2.connect(
+                host=self.db_host,
+                database=self.db_name,
+                user=self.db_user,
+                password=self.db_pass)
+            self.cur = self.conn.cursor()
+        except psycopg2.OperationalError:
+            return False
+        else:
+            return True
