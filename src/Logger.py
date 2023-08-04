@@ -17,3 +17,8 @@ def err_handler(error_text: str, help_text: str = None) -> None:
         sys.stdout.flush()
     input("Press Return to exit: ")
     sys.exit(1)
+
+
+def info_handler(info_text):
+    sys.stdout.write(info_text)
+    sys.exit(0)
