@@ -14,7 +14,7 @@ def arg_parsing() -> argparse.Namespace:
     if parse_args.help:
         pass
     if not parse_args.file:
-        Logger.err_handler("No input data","Please set argument '--file' or 'dir'. For info use '--help'")
+        Logger.err_handler("No input data", "Please set argument '--file'. For info use '--help'")
     return parse_args
 
 
