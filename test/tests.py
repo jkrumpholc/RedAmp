@@ -1,4 +1,6 @@
 import unittest
+from unittest import mock
+import argparse
 import src.main as main
 
 
@@ -9,8 +11,9 @@ class RedAmpTest(unittest.TestCase):
             main.arg_parsing()
         self.assertEqual(cm.exception.code, 1)
 
-    @patch('argparse._sys.argv', ['--help'])
-    def test_help_args(self):
+    @mock.patch('argparse.ArgumentParser.parse_args',
+                return_value=argparse.Namespace(help=True))
+    def test_help_args(self, mock_args):
         with self.assertRaises(SystemExit) as cm:
             main.arg_parsing()
         self.assertEqual(cm.exception.code, 0)
