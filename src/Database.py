@@ -58,3 +58,21 @@ class Database:
             return False
         else:
             return True
+
+    def add_entry(self, table, data, source):
+        request = f"INSERT INTO {table}(source, data) VALUES ('{source}','{data}')"
+        try:
+            self.cur.execute(request)
+        except psycopg2.OperationalError:
+            Logger.err_handler("Cannot connect", "Cannot connect to database")
+        except psycopg2.DataError:
+            Logger.err_handler("Data error", f"Cannot work with data:\n    {data}")
+        except psycopg2.ProgrammingError:
+            Logger.err_handler("Wrong SQL querry", f"Wrong SQL querry:\n    {request}")
+
+    def db_commit(self):
+        try:
+            self.conn.commit()
+        except psycopg2.InternalError:
+            Logger.err_handler("Integrity error")
+        return True

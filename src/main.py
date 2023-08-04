@@ -27,4 +27,4 @@ if __name__ == '__main__':
     Database.Credentials()
     db = Database.Database()  # initialize database
     db.connect()  # initialize connection
-    Data_processing.parse_links(args.file)  # parse file
+    Data_processing.parse_links(args.file, db)  # parse file
