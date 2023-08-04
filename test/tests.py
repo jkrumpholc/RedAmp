@@ -95,6 +95,14 @@ class RedAmpTest(unittest.TestCase):
         db.connect()
         self.assertTrue(db.db_commit())
 
+    def test_db_sources(self):
+        """
+        test for saving IOC sources
+        """
+        db = Database()
+        db.connect()
+        self.assertTrue(db.set_sources(0, 0, ""))
+
 
 if __name__ == '__main__':
     unittest.main()

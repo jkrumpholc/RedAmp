@@ -41,8 +41,8 @@ class Database:
         self.conn = None
         self.cur = None
         self.sql = ""
-        self.pointer_ip = 1
-        self.pointer_url = 1
+        self.pointer_ip = -1
+        self.pointer_url = -1
 
     def connect(self) -> bool:
         """
@@ -66,9 +66,22 @@ class Database:
         query = f"INSERT INTO {table}(source, data) VALUES ('{source}','{data}');"
         self.sql += query
 
-    def execute(self):
+    def pointer_set(self):
+        self.sql = f"SELECT last_value FROM ip_ioc_id_seq;"
+        self.pointer_ip = self.execute(True)[0]
+        if self.pointer_ip != 1:
+            self.pointer_ip += 1
+        self.sql = f"SELECT last_value FROM url_ioc_id_seq;"
+        self.pointer_url = self.execute(True)[0]
+        if self.pointer_url != 1:
+            self.pointer_url += 1
+        self.sql = ""
+
+    def execute(self, fetch=False):
         try:
             self.cur.execute(self.sql)
+            if fetch:
+                return self.cur.fetchone()
         except psycopg2.OperationalError:
             self.db_exit()
             Logger.err_handler("Cannot connect", "Cannot connect to database")
@@ -89,6 +102,7 @@ class Database:
             self.sql += f"INSERT INTO sources(url, ioc_type,from_index, to_index) VALUES ('{url}', 'url_ioc', {self.pointer_url},{self.pointer_url+url_rows-1})"
             self.pointer_url += url_rows
         self.execute()
+        return True
 
     def db_commit(self):
         try:
